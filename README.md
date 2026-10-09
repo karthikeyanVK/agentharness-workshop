@@ -26,7 +26,7 @@ Learn the enterprise agent harness by first fixing the basics, then strengthenin
 
 ## Workshop guide
 
-See [Building an Agent Harness: Step-by-Step Workshop Demo Plan](./WORKSHOP-DEMO-PLAN.md) for a teaching sequence that starts with a minimal loop and adds tools, registration, execution, policy, approval, context, memory, tracing, and CSV reading one module at a time.
+A teaching sequence that starts with a minimal loop and adds tools, registration, execution, policy, approval, context, memory, tracing, and CSV reading one module at a time.
 
 ## Start
 
@@ -50,18 +50,9 @@ npm run build
 
 
 ```
-
-The first slice demonstrates `LLM decision -> registry/policy validation -> execution -> structured result -> continuation`. All stages call the Azure adapter, so `AZURE_FOUNDRY_*` must be set in `.env`. The other values come pre-filled in `.env.example`; you only need to add the API key (see below).
-
 ## Azure AI Foundry setup (GPT)
 
-1. Copy `.env.example` to `.env`:
-
-```powershell
-Copy-Item .env.example .env
-
-
-```
+1. rename `.env.example` to `.env`:
 
 2. Open `.env`. `AZURE_FOUNDRY_ENDPOINT`, `AZURE_FOUNDRY_DEPLOYMENT` and `AZURE_FOUNDRY_API_VERSION` are already filled in. Leave them as they are.
 3. Get the API key from the [workshop key document](https://docs.google.com/document/d/1eGTPBKxi8MSrnD7pVhVgVBncIB-Rmfo6XVrSbk8_UsA/edit?usp=sharing) and paste it after `AZURE_FOUNDRY_API_KEY=`.
