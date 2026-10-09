@@ -11,3 +11,7 @@ function example() {}
 
 ```
 ````
+
+## No empty files
+
+Never leave zero-byte files in the repo. Delete any you create, including stray ones from shell redirects. Before finishing a task, check for them (`Get-ChildItem -Recurse -File | Where-Object Length -eq 0`, ignoring `node_modules` and `.git`).

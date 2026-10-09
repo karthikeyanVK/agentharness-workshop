@@ -16,7 +16,7 @@ Paste at the top of the file.
 
 ```ts
 // Stage 5: policy before execution. Model REQUESTING a tool is not authorization.
-import { AutoApproveForDemo } from "./approval.js";
+import { TerminalApproval } from "./approval.js";
 import { ExecutionEngine } from "./engine.js";
 import { PolicyEngine } from "./policy.js";
 import { ToolRegistry } from "./registry.js";
@@ -70,11 +70,11 @@ function makeRegistry(): ToolRegistry {
 
 ```
 
-Changed from Stage 4: `PolicyEngine` now gets the limit.
+Changed from Stage 4: `PolicyEngine` now gets the limit, and `TerminalApproval` asks you in the terminal before a high-risk tool runs. Type `y` to approve; anything else denies.
 
 ```ts
 function makeEngine(registry: ToolRegistry, limit: RiskLevel): ExecutionEngine {
-  return new ExecutionEngine(registry, new PolicyEngine(limit), new AutoApproveForDemo(), new Trace());
+  return new ExecutionEngine(registry, new PolicyEngine(limit), new TerminalApproval(), new Trace());
 }
 
 
@@ -166,7 +166,7 @@ Example: `npm run stage5 high`
 
 ## Watch for
 
-With limit `medium`, `delete_all_records` (high) is denied and `executed` stays empty. With `high` it runs.
+With limit `medium`, `delete_all_records` (high) is denied by policy, you are never asked, and `executed` stays empty. With `high` it asks `Approve? [y/N]`: `y` runs it, anything else denies it.
 
 ## Try it
 
