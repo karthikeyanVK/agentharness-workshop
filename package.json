@@ -1,0 +1,27 @@
+{
+  "name": "agent-harness-workshop",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/demo.ts",
+    "stage1": "tsx src/stage1.ts",
+    "stage2": "tsx src/stage2.ts",
+    "stage3": "tsx src/stage3.ts",
+    "stage4": "tsx src/stage4.ts",
+    "stage5": "tsx src/stage5.ts",
+    "stage6": "tsx src/stage6.ts",
+    "stage7": "tsx src/stage7.ts",
+    "stage8": "tsx src/stage8.ts",
+    "runtime-demo": "tsx src/runtime-demo.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/demo.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  }
+}
