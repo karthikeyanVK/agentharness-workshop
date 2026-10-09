@@ -8,7 +8,7 @@ Core decides, engine owns how a tool runs. Failures become observations, never f
 
 ## Setup
 
-Create a new empty file `src/stage4.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. `ExecutionEngine`, `PolicyEngine`, `AutoApproveForDemo` and `Trace` already exist in `src/`.
+Create a new empty file `src/stage4.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists. `ExecutionEngine`, `PolicyEngine`, `AutoApproveForDemo` and `Trace` already exist in `src/`.
 
 ## Step 1: Imports
 
@@ -23,6 +23,7 @@ import { PolicyEngine } from "./policy.js";
 import { ToolRegistry } from "./registry.js";
 import { Trace } from "./trace.js";
 import { createConfiguredModel } from "./model/index.js";
+import { cyan, green, red } from "./color.js";
 import type { ModelAdapter, ModelMessage, ToolDefinition } from "./types.js";
 
 
@@ -88,7 +89,7 @@ async function run(model: ModelAdapter, registry: ToolRegistry, engine: Executio
   const messages = buildMessages(objective);
   for (let step = 1; step <= maxSteps; step++) {
     const decision = await model.decide(messages, registry.list());
-    console.log(`  step ${step}: model said ${JSON.stringify(decision)}`);
+    console.log(cyan(`  step ${step}: model said ${JSON.stringify(decision)}`));
     if (decision.kind === "complete" || decision.kind === "message") return decision.content ?? "";
     messages.push({ role: "assistant", content: JSON.stringify(decision) });
     try {
@@ -97,7 +98,8 @@ async function run(model: ModelAdapter, registry: ToolRegistry, engine: Executio
     } catch (error) {
       messages.push({ role: "tool", content: `Tool failed: ${String(error)}` }); // failure is an observation, never a fake success
     }
-    console.log(`  step ${step}: observation -> ${messages.at(-1)!.content}`);
+    const obs = messages.at(-1)!.content;
+    console.log((obs.startsWith("Tool failed") ? red : green)(`  step ${step}: observation -> ${obs}`));
   }
   throw new Error(`stopped by harness after ${maxSteps} steps`);
 }
@@ -110,7 +112,7 @@ async function run(model: ModelAdapter, registry: ToolRegistry, engine: Executio
 ```ts
 async function demoSuccessAndFailure(model: ModelAdapter, registry: ToolRegistry, engine: ExecutionEngine, trace: Trace) {
   console.log("Objective: add 21+21, then convert to EUR");
-  console.log("  result:", await run(model, registry, engine, "Add 21 and 21 with calculate, then convert the total to EUR with fetch_exchange_rate. If a tool fails, say so and report what you have."));
+  console.log(green("  result:"), await run(model, registry, engine, "Add 21 and 21 with calculate, then convert the total to EUR with fetch_exchange_rate. If a tool fails, say so and report what you have."));
   console.log("\nTrace (engine recorded success AND failure):");
   for (const e of trace.events) console.log(`  ${e.type}/${e.status} ${JSON.stringify(e.data)}`);
 }

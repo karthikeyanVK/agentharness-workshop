@@ -8,7 +8,7 @@ Output answers the task, memory retains outcomes, trace explains execution.
 
 ## Setup
 
-Create a new empty file `src/stage8.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. `Trace` and `TraceEvent` already exist in `src/trace.ts`.
+Create a new empty file `src/stage8.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists. `Trace` and `TraceEvent` already exist in `src/trace.ts`.
 
 ## Step 1: Imports
 
@@ -25,6 +25,7 @@ import { PolicyEngine } from "./policy.js";
 import { ToolRegistry } from "./registry.js";
 import { Trace, type TraceEvent } from "./trace.js";
 import { createConfiguredModel } from "./model/index.js";
+import { cyan, green, red } from "./color.js";
 import type { RiskLevel, ToolDefinition } from "./types.js";
 
 
@@ -87,8 +88,8 @@ function narrate(e: TraceEvent): string {
 
 ```ts
 function printTrace(trace: Trace): void {
-  console.log("== Trace, narrated in order ==");
-  trace.events.forEach((e, n) => console.log(`  ${String(n + 1).padStart(2)}. ${e.at.slice(11, 23)} ${`${e.type}/${e.status}`.padEnd(26)} ${narrate(e)}`));
+  console.log(cyan("== Trace, narrated in order =="));
+  trace.events.forEach((e, n) => console.log(`  ${String(n + 1).padStart(2)}. ${e.at.slice(11, 23)} ${`${e.type}/${e.status}`.padEnd(26)} ${e.status === "failed" ? red(narrate(e)) : e.status === "succeeded" ? green(narrate(e)) : narrate(e)}`));
 }
 
 

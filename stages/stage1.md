@@ -8,7 +8,7 @@ Objective, decision contract (`tool_call` / `complete` / `message`), bounded ste
 
 ## Setup
 
-Create a new empty file `src/stage1.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order.
+Create a new empty file `src/stage1.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists.
 
 ## Step 1: Imports
 
@@ -17,6 +17,7 @@ Paste at the top of the file.
 ```ts
 // Stage 1: smallest harness. Objective + decision contract + bounded loop. No tools.
 import { createConfiguredModel } from "./model/index.js";
+import { cyan, green, red } from "./color.js";
 import type { ModelAdapter, ModelMessage, ToolDefinition } from "./types.js";
 
 
@@ -43,7 +44,7 @@ async function run(model: ModelAdapter, objective: string, maxSteps: number, sys
   const messages = buildMessages(system, objective);
   for (let step = 1; step <= maxSteps; step++) {
     const decision = await model.decide(messages, tools);
-    console.log(`  step ${step}: model said "${decision.kind}"`);
+    console.log(cyan(`  step ${step}: model said "${decision.kind}"`));
     if (decision.kind === "complete" || decision.kind === "message") return decision.content ?? "";
     messages.push({ role: "assistant", content: JSON.stringify(decision) }, { role: "tool", content: "noop ran. Not done yet: call noop again." }); // no tool execution yet; stub observation keeps the wire format valid
   }
@@ -60,7 +61,7 @@ Paste Demo A, then paste the entry point **below it** at the very bottom of the 
 ```ts
 async function demoA(model: ModelAdapter, objective: string, maxSteps: number): Promise<void> {
   console.log("Demo A: model completes");
-  console.log("  result:", await run(model, objective, maxSteps, "Answer in one short sentence."));
+  console.log(green("  result:"), await run(model, objective, maxSteps, "Answer in one short sentence."));
 }
 
 
@@ -108,7 +109,7 @@ async function demoB(model: ModelAdapter, objective: string, maxSteps: number): 
   try {
     await run(model, objective, maxSteps, "Always call the noop tool. Never give a final answer.", [noop]);
   } catch (error) {
-    console.log("  result:", (error as Error).message);
+    console.log(red("  result:"), (error as Error).message);
   }
 }
 

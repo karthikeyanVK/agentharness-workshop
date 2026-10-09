@@ -8,7 +8,7 @@ Context = the task (`ContextManager`). Conversation = model input inside one run
 
 ## Setup
 
-Create a new empty file `src/stage7.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. `AgentCore`, `ContextManager` and `Memory` already exist in `src/`. From here the loop lives in `AgentCore`.
+Create a new empty file `src/stage7.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists. `AgentCore`, `ContextManager` and `Memory` already exist in `src/`. From here the loop lives in `AgentCore`.
 
 ## Step 1: Imports
 
@@ -28,6 +28,7 @@ import { PolicyEngine } from "./policy.js";
 import { ToolRegistry } from "./registry.js";
 import { Trace } from "./trace.js";
 import { createConfiguredModel } from "./model/index.js";
+import { cyan, green } from "./color.js";
 import type { ModelAdapter, ToolDefinition } from "./types.js";
 
 
@@ -96,12 +97,12 @@ async function demoRun1(registry: ToolRegistry, memory: Memory): Promise<void> {
   context1.working.currency = "EUR";
   context1.business.customerTier = "gold";
 
-  console.log("== Run 1 ==");
+  console.log(cyan("== Run 1 =="));
   console.log("  context.objective:  ", context1.objective);
   console.log("  context.userContext:", JSON.stringify(context1.userContext));
   console.log("  context.working:    ", JSON.stringify(context1.working));
   console.log("  context.business:   ", JSON.stringify(context1.business));
-  console.log("  result:", await makeCore(registry, memory, spyModel("run1"), context1).run());
+  console.log(green("  result:"), await makeCore(registry, memory, spyModel("run1"), context1).run());
   console.log("  NOT in model input: userContext, working, business (core only sends objective)");
 
   console.log("\n  memory.recent() after run 1:");
@@ -117,8 +118,8 @@ Run 2 reuses the same `Memory` with a new task.
 
 ```ts
 async function demoRun2(registry: ToolRegistry, memory: Memory): Promise<void> {
-  console.log("\n== Run 2 (same memory object, new objective) ==");
-  console.log("  result:", await makeCore(registry, memory, spyModel("run2"), new ContextManager("What was the sum from before?")).run());
+  console.log(cyan("\n== Run 2 (same memory object, new objective) =="));
+  console.log(green("  result:"), await makeCore(registry, memory, spyModel("run2"), new ContextManager("What was the sum from before?")).run());
   console.log(`  memory holds ${memory.recent().length} entries, but none reached the model: core never reads memory into messages.`);
 }
 

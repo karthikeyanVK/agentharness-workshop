@@ -8,7 +8,7 @@ Policy asks "may this ever run?". Approval asks "should it run this time?". Appr
 
 ## Setup
 
-Create a new empty file `src/stage6.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. `AutoApproveForDemo`, `TerminalApproval` and `ApprovalManager` already exist in `src/approval.ts`.
+Create a new empty file `src/stage6.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists. `AutoApproveForDemo`, `TerminalApproval` and `ApprovalManager` already exist in `src/approval.ts`.
 
 ## Step 1: Imports
 
@@ -23,6 +23,7 @@ import { PolicyEngine } from "./policy.js";
 import { ToolRegistry } from "./registry.js";
 import { Trace } from "./trace.js";
 import { createConfiguredModel } from "./model/index.js";
+import { cyan, green, red } from "./color.js";
 import type { ModelAdapter, ModelMessage, RiskLevel, ToolDefinition } from "./types.js";
 
 
@@ -47,7 +48,7 @@ class ScriptedApproval implements ApprovalManager {
   constructor(private readonly answers: boolean[]) {}
   async request(tool: ToolDefinition, input: unknown): Promise<boolean> {
     const answer = this.answers.shift() ?? false;
-    console.log(`    [approver] ${tool.name}(${JSON.stringify(input)}) -> ${answer ? "APPROVED" : "DENIED"}`);
+    console.log(`    [approver] ${tool.name}(${JSON.stringify(input)}) -> ${answer ? green("APPROVED") : red("DENIED")}`);
     return answer;
   }
 }
@@ -99,7 +100,7 @@ async function run(model: ModelAdapter, engine: ExecutionEngine, registry: ToolR
   const messages = buildMessages(objective);
   for (let step = 1; step <= maxSteps; step++) {
     const decision = await model.decide(messages, registry.list());
-    if (decision.kind !== "tool_call") { console.log(`  model said: ${decision.content}`); break; }
+    if (decision.kind !== "tool_call") { console.log(green(`  model said: ${decision.content}`)); break; }
     messages.push({ role: "assistant", content: JSON.stringify(decision) });
     try {
       messages.push({ role: "tool", content: JSON.stringify(await engine.execute(decision.toolName ?? "", decision.input, objective)) });
@@ -118,7 +119,7 @@ One scenario builds a fresh engine with the approver you pass in, runs the objec
 
 ```ts
 async function scenario(model: ModelAdapter, title: string, approver: ApprovalManager, objective: string): Promise<void> {
-  console.log(`\n== ${title} ==`);
+  console.log(cyan(`\n== ${title} ==`));
   const executed: string[] = [];
   const registry = makeRegistry(makeSim(executed));
   const trace = new Trace();

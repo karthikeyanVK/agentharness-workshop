@@ -8,7 +8,7 @@ A model requesting a tool is not authorization. `PolicyEngine` compares tool ris
 
 ## Setup
 
-Create a new empty file `src/stage5.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. `PolicyEngine` already exists in `src/policy.ts`.
+Create a new empty file `src/stage5.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists. `PolicyEngine` already exists in `src/policy.ts`.
 
 ## Step 1: Imports and risk levels
 
@@ -22,6 +22,7 @@ import { PolicyEngine } from "./policy.js";
 import { ToolRegistry } from "./registry.js";
 import { Trace } from "./trace.js";
 import { createConfiguredModel } from "./model/index.js";
+import { cyan, green, red, yellow } from "./color.js";
 import type { ModelAdapter, ModelMessage, RiskLevel, ToolDefinition } from "./types.js";
 
 const risks: RiskLevel[] = ["low", "medium", "high", "critical"];
@@ -98,7 +99,7 @@ async function run(model: ModelAdapter, engine: ExecutionEngine, registry: ToolR
   const messages = buildMessages(objective);
   for (let step = 1; step <= maxSteps; step++) {
     const decision = await model.decide(messages, registry.list()); // discovery: model SEES high-risk tool
-    console.log(`  step ${step}: model requested ${decision.toolName ?? decision.kind}`);
+    console.log(cyan(`  step ${step}: model requested ${decision.toolName ?? decision.kind}`));
     if (decision.kind === "complete" || decision.kind === "message") return decision.content ?? "";
     messages.push({ role: "assistant", content: JSON.stringify(decision) });
     try {
@@ -106,7 +107,8 @@ async function run(model: ModelAdapter, engine: ExecutionEngine, registry: ToolR
     } catch (error) {
       messages.push({ role: "tool", content: `Tool failed: ${String(error)}` }); // denial = observation
     }
-    console.log(`  step ${step}: observation -> ${messages.at(-1)!.content}`);
+    const obs = messages.at(-1)!.content;
+    console.log((obs.startsWith("Tool failed") ? red : green)(`  step ${step}: observation -> ${obs}`));
   }
   throw new Error(`stopped by harness after ${maxSteps} steps`);
 }
@@ -125,7 +127,8 @@ function printPolicyMatrix(): void {
   for (const risk of risks) {
     const cells = risks.map((max) => {
       const d = new PolicyEngine(max).authorize(sim("x", risk));
-      return (d.allowed ? (d.requiresApproval ? "approval" : "allow") : "DENY").padEnd(10);
+      const label = d.allowed ? (d.requiresApproval ? "approval" : "allow") : "DENY";
+      return (d.allowed ? (d.requiresApproval ? yellow : green) : red)(label.padEnd(10)); // pad first: color codes would break padEnd
     });
     console.log(`  ${risk.padEnd(9)}${cells.join("")}`);
   }
@@ -144,7 +147,7 @@ async function main(): Promise<void> {
   const model = createConfiguredModel();
 
   console.log(`Policy limit: ${limit}`);
-  console.log("  result:", await run(model, engine, registry, "Call read_report, then update_record, then delete_all_records. If a tool fails, report why."));
+  console.log(green("  result:"), await run(model, engine, registry, "Call read_report, then update_record, then delete_all_records. If a tool fails, report why."));
   console.log(`  execute() actually ran for: [${executed.join(", ")}]`);
 
   printPolicyMatrix();

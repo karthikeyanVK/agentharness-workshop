@@ -8,7 +8,7 @@
 
 ## Setup
 
-Create a new empty file `src/stage3.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. `ToolRegistry` already exists in `src/registry.ts`.
+Create a new empty file `src/stage3.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists. `ToolRegistry` already exists in `src/registry.ts`.
 
 ## Step 1: Imports and shared schema
 
@@ -18,6 +18,7 @@ Paste at the top of the file.
 // Stage 3: tool registry. Loop looks tools up by name -> no tool-specific branching in the loop.
 import { ToolRegistry } from "./registry.js";
 import { createConfiguredModel } from "./model/index.js";
+import { cyan, green, red } from "./color.js";
 import type { ModelAdapter, ModelMessage, ToolDefinition } from "./types.js";
 
 type Pair = { left: number; right: number };
@@ -85,11 +86,11 @@ async function run(model: ModelAdapter, registry: ToolRegistry, objective: strin
   const messages = buildMessages(objective);
   for (let step = 1; step <= maxSteps; step++) {
     const decision = await model.decide(messages, [...registry.list(), ...extraTools]); // model sees the catalog
-    console.log(`  step ${step}: model said ${JSON.stringify(decision)}`);
+    console.log(cyan(`  step ${step}: model said ${JSON.stringify(decision)}`));
     if (decision.kind === "complete" || decision.kind === "message") return decision.content ?? "";
     const tool = registry.get(decision.toolName ?? "");             // generic lookup, throws on unknown
     const result = await tool.execute(decision.input, { objective, signal: new AbortController().signal });
-    console.log(`  step ${step}: ${tool.name} returned ${JSON.stringify(result)}`);
+    console.log(green(`  step ${step}: ${tool.name} returned ${JSON.stringify(result)}`));
     messages.push({ role: "assistant", content: JSON.stringify(decision) }, { role: "tool", content: JSON.stringify(result) });
   }
   throw new Error(`stopped by harness after ${maxSteps} steps`);
@@ -105,7 +106,7 @@ Three demos: the happy path, an unknown tool, a duplicate register.
 ```ts
 async function demoAddThenMultiply(model: ModelAdapter, registry: ToolRegistry) {
   console.log("Demo A: add then multiply via registry");
-  console.log("  result:", await run(model, registry, "Add 21+21 with calculate, then multiply 6*7 with multiply.", 5));
+  console.log(green("  result:"), await run(model, registry, "Add 21+21 with calculate, then multiply 6*7 with multiply.", 5));
 }
 
 
@@ -119,7 +120,7 @@ async function demoUnknownTool(model: ModelAdapter, registry: ToolRegistry) {
   try {
     await run(model, registry, "Divide 1 by 4 using the divide tool.", 5, [divide]);
   } catch (error) {
-    console.log("  error:", (error as Error).message);
+    console.log(red("  error:"), (error as Error).message);
   }
 }
 
@@ -132,7 +133,7 @@ function demoDuplicateRegister(registry: ToolRegistry) {
   try {
     registry.register(calculate as ToolDefinition);
   } catch (error) {
-    console.log("  error:", (error as Error).message);
+    console.log(red("  error:"), (error as Error).message);
   }
 }
 

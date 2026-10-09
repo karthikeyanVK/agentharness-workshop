@@ -8,7 +8,7 @@ One `calculate` tool. After each call, decision + tool result are appended to th
 
 ## Setup
 
-Create a new empty file `src/stage2.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order.
+Create a new empty file `src/stage2.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists.
 
 ## Step 1: Imports
 
@@ -17,6 +17,7 @@ Paste at the top of the file.
 ```ts
 // Stage 2: one tool + feedback loop. Decide -> call tool -> observe result -> decide -> complete.
 import { createConfiguredModel } from "./model/index.js";
+import { cyan, green } from "./color.js";
 import type { ModelAdapter, ModelMessage, ToolDefinition } from "./types.js";
 
 
@@ -61,11 +62,11 @@ async function run(model: ModelAdapter, objective: string, maxSteps: number): Pr
   for (let step = 1; step <= maxSteps; step++) {
     console.log(`  model sees ${messages.length} message(s): ${messages.map((m) => m.role).join(", ")}`);
     const decision = await model.decide(messages, [calculate as ToolDefinition]);
-    console.log(`  step ${step}: model said ${JSON.stringify(decision)}`);
+    console.log(cyan(`  step ${step}: model said ${JSON.stringify(decision)}`));
     if (decision.kind === "complete" || decision.kind === "message") return decision.content ?? "";
     // ponytail: direct tool call, no registry/engine yet (Stages 3-4 extract those)
     const result = await calculate.execute(decision.input as { left: number; right: number }, { objective, signal: new AbortController().signal });
-    console.log(`  step ${step}: tool returned ${JSON.stringify(result)}`);
+    console.log(green(`  step ${step}: tool returned ${JSON.stringify(result)}`));
     // The feedback loop: append decision + observation so the next decision can see it
     messages.push({ role: "assistant", content: JSON.stringify(decision) }, { role: "tool", content: JSON.stringify(result) });
   }
@@ -85,7 +86,7 @@ async function main(): Promise<void> {
   const right = Number(process.argv[3] ?? 21);
   const model = createConfiguredModel();
   console.log(`Objective: add ${left} and ${right}`);
-  console.log("  result:", await run(model, `Add ${left} and ${right} using the calculate tool.`, 5));
+  console.log(green("  result:"), await run(model, `Add ${left} and ${right} using the calculate tool.`, 5));
 }
 
 await main();
