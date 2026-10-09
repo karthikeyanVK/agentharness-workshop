@@ -14,7 +14,7 @@ Functions: `parseLimit`, `sim`, `makeRegistry`, `makeEngine`, `buildMessages`, `
 
 ## Run
 
-Needs `AZURE_FOUNDRY_*` in `.env` (see README).
+Needs a `.env` in the project root: copy `.env.example` to `.env` and paste the API key after `AZURE_FOUNDRY_API_KEY=` (see README). Run `npm run stage5` from the project root, else `.env` is not found.
 
 ```powershell
 npm run stage5 [low|medium|high|critical]

@@ -8,7 +8,7 @@ Objective, decision contract (`tool_call` / `complete` / `message`), bounded ste
 
 ## Setup
 
-Needs `AZURE_FOUNDRY_*` in `.env` (see README).
+Needs a `.env` in the project root: copy `.env.example` to `.env` and paste the API key after `AZURE_FOUNDRY_API_KEY=` (see README). Run `npm run stage1` from the project root, else `.env` is not found.
 
 Create a new empty file `src/stage1.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order.
 

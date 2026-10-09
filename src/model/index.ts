@@ -5,7 +5,10 @@ import type { ModelAdapter } from "../types.js";
 export function createConfiguredModel(env: NodeJS.ProcessEnv = process.env): ModelAdapter {
   const endpoint = env.AZURE_FOUNDRY_ENDPOINT;
   const apiKey = env.AZURE_FOUNDRY_API_KEY;
-  if (!endpoint || !apiKey) throw new Error("Azure Foundry configuration is required: AZURE_FOUNDRY_ENDPOINT and AZURE_FOUNDRY_API_KEY");
+  if (!endpoint || !apiKey) {
+    const missing = [!endpoint && "AZURE_FOUNDRY_ENDPOINT", !apiKey && "AZURE_FOUNDRY_API_KEY"].filter(Boolean).join(", ");
+    throw new Error(`Missing ${missing}. Copy .env.example to .env in ${process.cwd()}, paste the API key after AZURE_FOUNDRY_API_KEY=, then rerun.`);
+  }
   return new AzureFoundryClaudeAdapter({
     endpoint,
     apiKey,
