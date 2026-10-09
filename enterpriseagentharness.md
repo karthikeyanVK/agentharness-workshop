@@ -1,6 +1,6 @@
 # Enterprise Agent Harness - Marketing
 
-**Question:** What happens when the agent writes code and the harness runs it safely?
+**Question:** What can you build for your company today with the harness basics you've learned, and what tips and tricks make it safe to run?
 
 ## Learn
 
@@ -8,7 +8,7 @@ The model does not guess numbers. It writes TypeScript, the harness runs it in a
 
 ## Setup
 
-Complete Stages 1-8 first and set up `.env` (see README, Azure AI Foundry setup). Create a new empty file `src/enterprise-marketing-agent-harness.ts` in your editor. Build it in 9 steps. Paste each block exactly as shown, in order. The three ShopKart CSV files already exist in `workspace/input/` (`campaigns.csv`, `marketing_spend.csv`, `orders.csv`). `color.ts`, `approval.ts`, `core.ts`, `engine.ts`, `policy.ts`, `registry.ts`, `trace.ts` and `model/` already exist.
+Create a new empty file `src/enterprise-marketing-agent-harness.ts` in your editor. Build it in 9 steps. Paste each block exactly as shown, in order. 
 
 ## Step 0: Imports
 
@@ -103,25 +103,20 @@ const tool = (name: string, risk: RiskLevel, description: string, properties: Re
 The tool bodies. `executeTypescript` is the lesson: validate, transpile, run in a child process under `node --permission` with an empty environment, return stdout, stderr, exit code and new files.
 
 ```ts
+// List every file in input/, working/ and output/ as "zone/name".
 async function listWorkspaceFiles(): Promise<string[]> {
   const files: string[] = [];
   for (const zone of ZONES) for (const name of await readdir(join(ROOT, zone))) files.push(`${zone}/${name}`);
   return files;
 }
 
-
-```
-
-```ts
+// Show a CSV's columns, row count and 3 sample rows so the model can plan its code before writing any.
 async function inspectCsvFile(path: string): Promise<unknown> {
   const [header, ...rows] = (await readFile(safePath(path), "utf8")).trim().split("\n"); // ponytail: naive split, no quoted commas
   return { path, columns: header.split(","), rowCount: rows.length, sampleRows: rows.slice(0, 3) };
 }
 
-
-```
-
-```ts
+// Read a text-like file back (capped at 20k chars). Only .md .csv .json .txt are allowed.
 async function readWorkspaceFile(path: string): Promise<string> {
   if (![".md", ".csv", ".json", ".txt"].includes(extname(path).toLowerCase())) throw new Error(`Unsupported file type: ${extname(path)}`);
   return (await readFile(safePath(path), "utf8")).slice(0, 20_000);
@@ -199,20 +194,15 @@ function describe(e: TraceEvent): [string, string, (s: string) => string] | unde
 ```
 
 ```ts
+// Print each trace event live, in its phase color.
 function attachLiveTrace(trace: Trace): void {
   trace.onEvent = (e) => { const line = describe(e); if (line) console.log(line[2](`  ${line[0].padEnd(22)} ${line[1]}`)); };
 }
 
-
-```
-
-```ts
+// Status tag -> color. The tags match what the guidance tells the model to start each line with.
 const TAG_COLORS: Record<string, (s: string) => string> = { "[DECLINING]": red, "[WATCH]": yellow, "[HEALTHY]": green };
 
-
-```
-
-```ts
+// Color each summary line by its leading tag, headings cyan, everything else plain.
 function colorSummary(text: string): string {
   return text.split("\n").map((line) => {
     const bare = line.replace(/^[\s*-]+/, ""); // models like to add "- " bullets
@@ -254,7 +244,7 @@ await main();
 ## Run
 
 ```powershell
-npm run enterprise-marketing-agent-harness
+
 npm run enterprise-marketing-agent-harness -- "Which channel has the best ROI? Output a CSV."
 
 
