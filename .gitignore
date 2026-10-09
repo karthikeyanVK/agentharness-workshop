@@ -1,9 +1,12 @@
 .env
 node_modules
-workspace
 dist
 dist/stage1.js
 .claude-flow/
 src/stage*.ts
 package-lock.json
 *.log
+workspace/ENTERPRISE-MARKETING-AGENT-HARNESS-TALK.md
+workspace/working/
+workspace/output/
+src/enterprise-marketing-agent-harness.ts

@@ -163,7 +163,7 @@ await main();
 ## Run
 
 ```powershell
-npm run stage6 [scripted]
+npm run stage6 scripted
 
 
 ```

@@ -97,12 +97,11 @@ await main();
 ## Run
 
 ```powershell
-npm run stage2 [left] [right]
+npm run stage2 6 7
 
 
 ```
 
-Example: `npm run stage2 6 7`
 
 ## Watch for
 

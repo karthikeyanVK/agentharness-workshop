@@ -70,3 +70,11 @@ npm run build
 | 6 | [Human Approval Gate](./stages/stage6.md) | Policy vs approval | Policy asks "may this ever run?"; approval asks "should it run this time?". Denied means it never runs. |
 | 7 | [Context And Memory](./stages/stage7.md) | Context vs memory | Storing information is not the same as giving it to the model. |
 | 8 | [Traces And Observability](./stages/stage8.md) | Explain a run | Output answers the task, memory retains outcomes, trace explains execution. |
+
+## Enterprise Agent Harness - Marketing
+
+After Stage 8, build one complete, enterprise-style harness: an agent that analyzes marketing data by writing and running code in a fenced workspace. Same Agent Core, registry, policy, approval and trace; the new capability is just more tools.
+
+| Build | Name | Teaches | Description |
+| --- | --- | --- | --- |
+| Marketing | [Enterprise Agent Harness - Marketing](./enterpriseagentharness.md) | Runtime execution | Agent inspects CSV files, writes TypeScript, the harness runs it in a sandboxed workspace, and the agent reads back a management report. Run with `npm run enterprise-marketing-agent-harness`. |

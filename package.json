@@ -12,7 +12,7 @@
     "stage6": "tsx src/stage6.ts",
     "stage7": "tsx src/stage7.ts",
     "stage8": "tsx src/stage8.ts",
-    "runtime-demo": "tsx src/runtime-demo.ts",
+    "enterprise-marketing-agent-harness": "tsx src/enterprise-marketing-agent-harness.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/demo.js"
   },
