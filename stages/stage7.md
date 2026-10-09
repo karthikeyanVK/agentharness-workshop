@@ -8,7 +8,12 @@ Context = the task (`ContextManager`). Conversation = model input inside one run
 
 ## Setup
 
-Create a new empty file `src/stage7.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists. `AgentCore`, `ContextManager` and `Memory` already exist in `src/`. From here the loop lives in `AgentCore`.
+- Create a new empty file `src/stage7.ts` in your editor.
+- Build it in 5 steps.
+- Paste each block exactly as shown, in order.
+- Colors come from `src/color.ts`, which already exists.
+- `AgentCore`, `ContextManager` and `Memory` already exist in `src/`.
+- From here the loop lives in `AgentCore`.
 
 ## Step 1: Imports
 

@@ -8,7 +8,11 @@ Output answers the task, memory retains outcomes, trace explains execution.
 
 ## Setup
 
-Create a new empty file `src/stage8.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists. `Trace` and `TraceEvent` already exist in `src/trace.ts`.
+- Create a new empty file `src/stage8.ts` in your editor.
+- Build it in 5 steps.
+- Paste each block exactly as shown, in order.
+- Colors come from `src/color.ts`, which already exists.
+- `Trace` and `TraceEvent` already exist in `src/trace.ts`.
 
 ## Step 1: Imports
 

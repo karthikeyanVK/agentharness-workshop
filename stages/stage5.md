@@ -8,7 +8,10 @@ A model requesting a tool is not authorization. `PolicyEngine` compares tool ris
 
 ## Setup
 
-Create a new empty file `src/stage5.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists. `PolicyEngine` already exists in `src/policy.ts`.
+- Create a new empty file `src/stage5.ts` in your editor.
+- Build it in 5 steps.
+- Paste each block exactly as shown, in order.
+- `PolicyEngine` already exists in `src/policy.ts`.
 
 ## Step 1: Imports and risk levels
 

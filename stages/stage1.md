@@ -8,7 +8,9 @@ Objective, decision contract (`tool_call` / `complete` / `message`), bounded ste
 
 ## Setup
 
-Create a new empty file `src/stage1.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists.
+- Create a new empty file `src/stage1.ts` in your editor.
+- Build it in 5 steps.
+- Paste each block exactly as shown, in order.
 
 ## Step 1: Imports
 

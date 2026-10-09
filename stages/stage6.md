@@ -8,7 +8,11 @@ Policy asks "may this ever run?". Approval asks "should it run this time?". Appr
 
 ## Setup
 
-Create a new empty file `src/stage6.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists. `AutoApproveForDemo`, `TerminalApproval` and `ApprovalManager` already exist in `src/approval.ts`.
+- Create a new empty file `src/stage6.ts` in your editor.
+- Build it in 5 steps.
+- Paste each block exactly as shown, in order.
+- Colors come from `src/color.ts`, which already exists.
+- `AutoApproveForDemo`, `TerminalApproval` and `ApprovalManager` already exist in `src/approval.ts`.
 
 ## Step 1: Imports
 

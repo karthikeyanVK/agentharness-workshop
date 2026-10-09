@@ -8,7 +8,9 @@ The model does not guess numbers. It writes TypeScript, the harness runs it in a
 
 ## Setup
 
-Create a new empty file `src/enterprise-marketing-agent-harness.ts` in your editor. Build it in 9 steps. Paste each block exactly as shown, in order. 
+- Create a new empty file `src/enterprise-marketing-agent-harness.ts` in your editor.
+- Build it in 9 steps.
+- Paste each block exactly as shown, in order.
 
 ## Step 0: Imports
 
@@ -57,7 +59,7 @@ const GUIDANCE = [
   "2. Compute with execute_typescript. The code runs with cwd = workspace, so read 'input/<name>.csv' and write 'output/<name>'. Use only node:fs and node:path. Parse CSV with split('\\n') and split(',').",
   "3. Weekly ROI = (revenue - spend) / spend. Revenue counts completed orders only, grouped into the same week_start (Monday) buckets as marketing_spend.csv by order_date. A campaign is declining if ROI falls week over week in the last three weeks.",
   "4. Write the report to output/management_report.md and the numbers to output/campaign_metrics.json.",
-  "5. Read the report back with read_workspace_file, then give the final answer as a management summary: one line per campaign, starting with exactly [DECLINING] (ROI falling), [WATCH] (ROI negative but not falling) or [HEALTHY] (ROI positive and not falling), then the campaign name, channel and ROI trend. End with one recommendation line.",
+  "5. Read the report back with read_workspace_file, then give the final answer as a management summary: a markdown table with the header | Status | Campaign | Channel | ROI trend |, one row per campaign. Status is exactly [DECLINING] (ROI falling), [WATCH] (ROI negative but not falling) or [HEALTHY] (ROI positive and not falling). After the table, add one recommendation line.",
 ].join("\n");
 
 
@@ -218,7 +220,7 @@ const TAG_COLORS: Record<string, (s: string) => string> = { "[DECLINING]": red, 
 // Color each summary line by its leading tag, headings cyan, everything else plain.
 function colorSummary(text: string): string {
   return text.split("\n").map((line) => {
-    const bare = line.replace(/^[\s*-]+/, ""); // models like to add "- " bullets
+    const bare = line.replace(/^[\s*|-]+/, ""); // models add "- " bullets, and table rows start with "| "
     const tag = Object.keys(TAG_COLORS).find((t) => bare.startsWith(t));
     return tag ? TAG_COLORS[tag](line) : /^#/.test(line.trim()) ? cyan(line) : line;
   }).join("\n");

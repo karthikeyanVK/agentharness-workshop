@@ -8,7 +8,9 @@
 
 ## Setup
 
-Create a new empty file `src/stage3.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists. `ToolRegistry` already exists in `src/registry.ts`.
+- Create a new empty file `src/stage3.ts` in your editor.
+- Build it in 5 steps.
+- Paste each block exactly as shown, in order.
 
 ## Step 1: Imports and shared schema
 

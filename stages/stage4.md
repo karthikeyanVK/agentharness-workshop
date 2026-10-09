@@ -8,7 +8,9 @@ Core decides, engine owns how a tool runs. Failures become observations, never f
 
 ## Setup
 
-Create a new empty file `src/stage4.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Colors come from `src/color.ts`, which already exists. `ExecutionEngine`, `PolicyEngine`, `AutoApproveForDemo` and `Trace` already exist in `src/`.
+- Create a new empty file `src/stage4.ts` in your editor.
+- Build it in 5 steps.
+- Paste each block exactly as shown, in order.
 
 ## Step 1: Imports
 
