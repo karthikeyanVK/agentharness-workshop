@@ -102,6 +102,8 @@ const tool = (name: string, risk: RiskLevel, description: string, properties: Re
 
 The tool bodies. `executeTypescript` is the lesson: validate, transpile, run in a child process under `node --permission` with an empty environment, return stdout, stderr, exit code and new files.
 
+Three read-only helpers the model uses to look before it codes: list what is in the workspace, peek at a CSV's shape, and read a finished file back. All paths go through `safePath`.
+
 ```ts
 // List every file in input/, working/ and output/ as "zone/name".
 async function listWorkspaceFiles(): Promise<string[]> {
@@ -125,22 +127,33 @@ async function readWorkspaceFile(path: string): Promise<string> {
 
 ```
 
+
+`runChild` runs the model's code in a separate, locked-down Node process and returns the exit code, stdout and stderr. This is the safety core: `--permission` denies everything by default, reads and writes are limited to the workspace zones, the environment is empty so API keys never reach the code, and a 25 s timeout plus output caps stop runaway scripts.
+
 ```ts
 let runCount = 0;
 
-
-```
-
-```ts
 function runChild(file: string): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-  // node --permission: file access only inside the workspace, writes only to working/ and output/, empty env so no API keys leak.
+  // Run the model's code in a separate Node process, locked down by flags:
+  //   --permission          deny everything by default (fs, child processes, workers, addons)
+  //   --allow-fs-read=ROOT  may read only inside workspace/
+  //   --allow-fs-write=...  may write only to working/ and output/, so the input/ CSVs stay untouched
   const args = ["--permission", `--allow-fs-read=${ROOT}`, `--allow-fs-write=${join(ROOT, "working")}`, `--allow-fs-write=${join(ROOT, "output")}`, file];
+
+  // Process options:
+  //   cwd: ROOT             relative paths like 'input/x.csv' resolve inside the workspace
+  //   env: {}               empty environment, so API keys and tokens never reach generated code
+  //   timeout: 25_000       kill after 25 s, which stops infinite loops
+  //   maxBuffer: 1_000_000  cap captured output, so a print loop can't flood memory
+  // Result: exit code, stdout capped at 8000 chars, stderr capped at 4000 (or a timeout message if killed).
   return new Promise((done) => execFile(process.execPath, args, { cwd: ROOT, env: {}, timeout: 25_000, maxBuffer: 1_000_000 }, (error, stdout, stderr) =>
     done({ exitCode: error ? (typeof error.code === "number" ? error.code : 1) : 0, stdout: stdout.slice(0, 8000), stderr: error?.killed ? "Timed out after 25 s" : stderr.slice(0, 4000) })));
 }
 
 
 ```
+
+`executeTypescript` is the tool the model calls to run code: validate the size, save the source for audit, transpile to JavaScript, run it through `runChild`, and report the result plus any new files it created.
 
 ```ts
 async function executeTypescript(code: string): Promise<unknown> {
@@ -232,10 +245,6 @@ async function main(): Promise<void> {
   console.log(colorSummary(answer));
 }
 
-
-```
-
-```ts
 await main();
 
 
@@ -249,25 +258,5 @@ npm run enterprise-marketing-agent-harness -- "Which channel has the best ROI? O
 
 
 ```
-
-## Watch for
-
-Phases in order: USER REQUEST, AGENT REASONING, FILE ACCESS, TYPESCRIPT EXECUTION, RESULT, REPORT GENERATION, AGENT INSPECTION, FINAL ANSWER. Expected finding: **C02 Instagram Reels Festive** and **C04 Facebook Retargeting** have falling ROI.
-
-Open `workspace/working/run-1.ts` to see the code the model wrote, and `workspace/output/management_report.md` for the report.
-
-## Try it
-
-Change `PolicyEngine("medium")` to `PolicyEngine("low")` in `main`. `execute_typescript` is now blocked: "Risk medium exceeds policy limit".
-
-## Safety model
-
-- Paths resolve only inside `input/ working/ output/`.
-- The child runs `node --permission`: reads limited to the workspace, writes limited to `working/` and `output/`.
-- The child environment is empty, so API keys never reach generated code.
-- 25 s timeout, output capped, code size capped.
-- Honest gap: Node permission mode does not block network access. Production needs a container or VM.
-
----
 
 [Back to README](./README.md)
