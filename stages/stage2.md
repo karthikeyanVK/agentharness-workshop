@@ -8,8 +8,6 @@ One `calculate` tool. After each call, decision + tool result are appended to th
 
 ## Setup
 
-Needs a `.env` in the project root: copy `.env.example` to `.env` and paste the API key after `AZURE_FOUNDRY_API_KEY=` (see README). Run `npm run stage2` from the project root, else `.env` is not found.
-
 Create a new empty file `src/stage2.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order.
 
 ## Step 1: Imports
