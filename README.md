@@ -30,22 +30,42 @@ See [Building an Agent Harness: Step-by-Step Workshop Demo Plan](./WORKSHOP-DEMO
 
 ## Start
 
+1. Open a terminal (PowerShell on Windows, Terminal on Mac/Linux).
+2. Clone the repo and open it in VS Code (or your favourite editor):
+
+```powershell
+git clone https://github.com/karthikeyanVK/agentharness-workshop
+cd agentharness-workshop
+code .
+
+
+```
+
+3. In the editor, open the integrated terminal (`` Ctrl+` ``) and run the rest of the commands there:
+
 ```powershell
 npm install
 npm run dev
 npm run build
+
+
 ```
 
-The first slice demonstrates `LLM decision -> registry/policy validation -> execution -> structured result -> continuation`. All stages call the Azure adapter, so `AZURE_FOUNDRY_*` must be set in `.env`.
+The first slice demonstrates `LLM decision -> registry/policy validation -> execution -> structured result -> continuation`. All stages call the Azure adapter, so `AZURE_FOUNDRY_*` must be set in `.env`. The other values come pre-filled in `.env.example`; you only need to add the API key (see below).
 
 ## Azure AI Foundry setup (GPT)
 
-1. Rename `.env.example` to `.env`.
-2. Update the keys in `.env`:
-   - `AZURE_FOUNDRY_ENDPOINT`: your Foundry / Azure OpenAI resource URL, e.g. `https://<your-resource>.openai.azure.com`
-   - `AZURE_FOUNDRY_API_KEY`: key from the resource's Keys and Endpoint page
-   - `AZURE_FOUNDRY_DEPLOYMENT`: name of your GPT deployment (e.g. `gpt-4o`); replace the `claude-opus-5` default
-   - `AZURE_FOUNDRY_API_VERSION`: API version, e.g. `2024-10-21`
+1. Copy `.env.example` to `.env`:
+
+```powershell
+Copy-Item .env.example .env
+
+
+```
+
+2. Open `.env`. `AZURE_FOUNDRY_ENDPOINT`, `AZURE_FOUNDRY_DEPLOYMENT` and `AZURE_FOUNDRY_API_VERSION` are already filled in. Leave them as they are.
+3. Get the API key from the [workshop key document](https://docs.google.com/document/d/1eGTPBKxi8MSrnD7pVhVgVBncIB-Rmfo6XVrSbk8_UsA/edit?usp=sharing) and paste it after `AZURE_FOUNDRY_API_KEY=`.
+4. Never commit `.env`. It is already in `.gitignore`.
 
 ## Workshop - Stages
 

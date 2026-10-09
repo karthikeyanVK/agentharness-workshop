@@ -1,5 +1,6 @@
 // Stage 1: smallest harness. Objective + decision contract + bounded loop. No tools.
-import { azureModel } from "./model/index.js";
+// ---- STAGE 1: imports (copy this) ----
+import { createConfiguredModel } from "./model/index.js";
 import type { ModelAdapter, ModelMessage, ToolDefinition } from "./types.js";
 
 // ---- STAGE 1: initial messages (system + objective) (copy this) ----
@@ -19,6 +20,7 @@ async function run(model: ModelAdapter, objective: string, maxSteps: number, sys
   throw new Error(`stopped by harness after ${maxSteps} steps`);
 }
 
+// ---- STAGE 1: noop tool for demo B (copy this) ----
 // B needs a tool the model can keep calling: a noop (never executed in this stage)
 const noop: ToolDefinition = { name: "noop", description: "Does nothing", inputSchema: { type: "object" }, permission: "none", risk: "low", async execute() { return {}; } };
 
@@ -38,9 +40,9 @@ async function demoB(model: ModelAdapter, objective: string, maxSteps: number): 
   }
 }
 
-// ---- STAGE 1: entry point (copy this) ----
+// ---- STAGE 1: entry point (copy this, keep `await main()` last) ----
 async function main(): Promise<void> {
-  const model = azureModel();
+  const model = createConfiguredModel();
   const maxSteps = Number(process.argv[2] ?? 3);
   const objective = "Say the harness loop works.";
   await demoA(model, objective, maxSteps);
