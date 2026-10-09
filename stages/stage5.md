@@ -63,6 +63,7 @@ function sim(name: string, risk: RiskLevel): ToolDefinition {
 function makeRegistry(): ToolRegistry {
   const registry = new ToolRegistry();
   registry.register(sim("read_report", "low"));
+  registry.register(sim("update_record", "medium"));
   registry.register(sim("delete_all_records", "high")); // harmless simulation labeled high
   return registry;
 }
@@ -143,7 +144,7 @@ async function main(): Promise<void> {
   const model = createConfiguredModel();
 
   console.log(`Policy limit: ${limit}`);
-  console.log("  result:", await run(model, engine, registry, "Call read_report, then call delete_all_records. If a tool fails, report why."));
+  console.log("  result:", await run(model, engine, registry, "Call read_report, then update_record, then delete_all_records. If a tool fails, report why."));
   console.log(`  execute() actually ran for: [${executed.join(", ")}]`);
 
   printPolicyMatrix();
@@ -166,7 +167,7 @@ Example: `npm run stage5 high`
 
 ## Watch for
 
-With limit `medium`, `delete_all_records` (high) is denied by policy, you are never asked, and `executed` stays empty. With `high` it asks `Approve? [y/N]`: `y` runs it, anything else denies it.
+`read_report` (low) runs without asking. `update_record` (medium) and `delete_all_records` (high) ask `Approve? [y/N]`: `y` runs it, anything else denies it. With limit `medium`, `delete_all_records` is denied by policy, you are never asked, and `executed` never lists it. With limit `low`, `update_record` is denied too.
 
 ## Try it
 

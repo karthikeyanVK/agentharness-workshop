@@ -7,6 +7,6 @@ export class PolicyEngine {
 
   authorize(tool: ToolDefinition): { allowed: boolean; requiresApproval: boolean; reason?: string } {
     if (rank[tool.risk] > rank[this.maximumRisk]) return { allowed: false, requiresApproval: false, reason: `Risk ${tool.risk} exceeds policy limit` };
-    return { allowed: true, requiresApproval: rank[tool.risk] >= rank.high };
+    return { allowed: true, requiresApproval: rank[tool.risk] >= rank.medium };
   }
 }
