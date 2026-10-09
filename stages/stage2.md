@@ -10,7 +10,7 @@ One `calculate` tool. After each call, decision + tool result are appended to th
 
 Needs `AZURE_FOUNDRY_*` in `.env` (see README).
 
-Create a new empty file `src/stage2.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Reference solution: [`src/stage2.ts`](../src/stage2.ts).
+Create a new empty file `src/stage2.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order.
 
 ## Step 1: Imports
 

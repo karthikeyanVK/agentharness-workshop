@@ -10,7 +10,7 @@ Objective, decision contract (`tool_call` / `complete` / `message`), bounded ste
 
 Needs `AZURE_FOUNDRY_*` in `.env` (see README).
 
-Create a new empty file `src/stage1.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order. Reference solution: [`src/stage1.ts`](../src/stage1.ts).
+Create a new empty file `src/stage1.ts` in your editor. Build it in 5 steps. Paste each block exactly as shown, in order.
 
 ## Step 1: Imports
 
