@@ -2,8 +2,8 @@
 node_modules
 workspace
 dist
-./stage1.ts
 dist/stage1.js
 .claude-flow/
 src/stage*.ts
 package-lock.json
+stage*.md
