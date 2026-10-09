@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { AzureFoundryClaudeAdapter } from "./azure-foundry.js";
 import type { ModelAdapter } from "../types.js";
 

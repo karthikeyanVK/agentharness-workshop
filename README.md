@@ -2,9 +2,27 @@
 
 A modular, model-agnostic TypeScript execution and control layer.
 
-## Workshop guide
+## What the workshop teaches
 
-See [Building an Agent Harness: Step-by-Step Workshop Demo Plan](./WORKSHOP-DEMO-PLAN.md) for a teaching sequence that starts with a minimal loop and adds tools, registration, execution, policy, approval, context, memory, tracing, and CSV reading one module at a time.
+Learn the enterprise agent harness by first fixing the basics, then strengthening them, then building one ready for the future.
+
+**Fix the basics**
+- The loop. Objective, decision contract (`tool_call` / `complete` / `message`), bounded steps. The harness ends runs, not the model.
+- One tool + feedback loop. Decide, call tool, observe, decide again.
+- Tool registry. Lookup by name, no tool-specific branching, unknown and duplicate tools rejected.
+- Execution engine. Core decides; engine owns how a tool runs. Failures become observations, never fake successes.
+
+**Strengthen it**
+- Policy. A model requesting a tool is not authorization. Risk vs limit, checked before execution.
+- Approval. Policy asks "may this ever run?"; approval asks "should it run this time?" Human or scripted approver.
+- Context, conversation, memory. Storing information is not the same as giving it to the model.
+- Traces. Output answers the task, memory retains outcomes, trace explains execution.
+
+**Build for the future**
+- Real model through a provider adapter (Azure Foundry today). Swap providers without touching Agent Core.
+- Runtime execution. Agent writes and runs code in a sandboxed workspace; harness validates, runs, traces.
+- New tools, MCP, browser, and file adapters plug in as registry tools, not core changes.
+- Same controls (registry, policy, approval, trace) keep working as capability grows.
 
 ## Start
 
