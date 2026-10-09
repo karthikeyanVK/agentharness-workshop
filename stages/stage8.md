@@ -25,7 +25,7 @@ import { PolicyEngine } from "./policy.js";
 import { ToolRegistry } from "./registry.js";
 import { Trace, type TraceEvent } from "./trace.js";
 import { createConfiguredModel } from "./model/index.js";
-import { cyan, green, red } from "./color.js";
+import { cyan, green, red, yellow } from "./color.js";
 import type { RiskLevel, ToolDefinition } from "./types.js";
 
 
@@ -75,7 +75,7 @@ async function runAgent(registry: ToolRegistry, trace: Trace, memory: Memory): P
 ```ts
 function narrate(e: TraceEvent): string {
   const d = e.data as Record<string, unknown>;
-  if (e.type === "decision") return d.kind === "tool_call" ? `model proposed ${d.toolName}(${JSON.stringify(d.input)})` : `model finished: "${d.content}"`;
+  if (e.type === "decision") return d.kind === "tool_call" ? `model proposed ${d.toolName}(${JSON.stringify(d.input)})` : `model finished (${String(d.content).length} chars, see OUTPUT below)`;
   if (e.status === "awaiting_approval") return `paused for approval of ${d.tool}`;
   if (e.status === "running") return `engine started ${d.tool}`;
   if (e.status === "succeeded") return `${d.tool} succeeded -> ${JSON.stringify(d.result)}`;
@@ -86,10 +86,19 @@ function narrate(e: TraceEvent): string {
 
 ```
 
+`paint` picks a color per event: red failed, green succeeded, yellow awaiting approval, cyan model decisions.
+
+```ts
+const paint = (e: TraceEvent): ((s: string) => string) =>
+  e.status === "failed" ? red : e.status === "succeeded" ? green : e.status === "awaiting_approval" ? yellow : e.type === "decision" ? cyan : (s) => s;
+
+
+```
+
 ```ts
 function printTrace(trace: Trace): void {
   console.log(cyan("== Trace, narrated in order =="));
-  trace.events.forEach((e, n) => console.log(`  ${String(n + 1).padStart(2)}. ${e.at.slice(11, 23)} ${`${e.type}/${e.status}`.padEnd(26)} ${e.status === "failed" ? red(narrate(e)) : e.status === "succeeded" ? green(narrate(e)) : narrate(e)}`));
+  trace.events.forEach((e, n) => console.log(`  ${String(n + 1).padStart(2)}. ${e.at.slice(11, 23)} ${paint(e)(`${e.type}/${e.status}`.padEnd(26))} ${paint(e)(narrate(e))}`));
 }
 
 
@@ -101,11 +110,12 @@ Output, memory and trace side by side.
 
 ```ts
 function printSurfaces(output: string, memory: Memory, trace: Trace): void {
-  console.log("\n== Three surfaces, compared ==");
-  console.log("  OUTPUT (answers the task):", output);
-  console.log("  MEMORY (retained outcomes):");
-  for (const m of memory.recent()) console.log(`    - ${m}`);
-  console.log(`  TRACE  (explains execution): ${trace.events.length} events above`);
+  console.log(cyan("\n== Three surfaces, compared =="));
+  console.log(green("  OUTPUT (answers the task):"));
+  for (const line of output.split("\n")) console.log(`    ${line}`);
+  console.log(yellow("  MEMORY (retained outcomes):"));
+  for (const m of memory.recent()) console.log(`    - ${(m.startsWith("Tool failed") ? red : green)(m)}`);
+  console.log(cyan(`  TRACE  (explains execution): ${trace.events.length} events above`));
 }
 
 
@@ -116,9 +126,10 @@ Learner exercise: query the trace for `wipe_production`.
 ```ts
 function printWipeExercise(trace: Trace): void {
   const wipe = trace.events.filter((e) => JSON.stringify(e.data).includes("wipe_production"));
-  console.log("\n== Exercise: wipe_production in the trace ==");
-  for (const e of wipe) console.log(`  ${e.type}/${e.status}`);
-  console.log("  Can infer: model proposed it. Cannot infer: why it did not run (no failed event; reason only in memory).");
+  console.log(cyan("\n== Exercise: wipe_production in the trace =="));
+  for (const e of wipe) console.log(`  ${paint(e)(`${e.type}/${e.status}`)}`);
+  console.log(`  ${green("Can infer:")} model proposed it.`);
+  console.log(`  ${red("Cannot infer:")} why it did not run (no failed event; reason only in memory).`);
 }
 
 

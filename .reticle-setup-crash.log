@@ -1,8 +1,0 @@
-Error: EPIPE: broken pipe, write
-    at Socket._write (node:internal/net:63:18)
-    at writeOrBuffer (node:internal/streams/writable:572:12)
-    at _write (node:internal/streams/writable:501:10)
-    at Writable.write (node:internal/streams/writable:510:10)
-    at log (file:///C:/Users/KarthikeyanVK/AppData/Roaming/npm/node_modules/@reticlehq/server/dist/log.js:17:20)
-    at ensure (file:///C:/Users/KarthikeyanVK/AppData/Roaming/npm/node_modules/@reticlehq/server/dist/command/cli/mcp-command.js:135:9)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
