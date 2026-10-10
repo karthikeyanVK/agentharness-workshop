@@ -68,12 +68,11 @@ npm run build
 | 4 | [Execution Engine](./stages/stage4.md) | Controlled tool running | Engine owns how a tool runs. Failures become observations, never fake successes. |
 | 5 | [Policy Before Execution](./stages/stage5.md) | Risk vs limit | A model requesting a tool is not authorization. Policy checks before execution. |
 | 6 | [Human Approval Gate](./stages/stage6.md) | Policy vs approval | Policy asks "may this ever run?"; approval asks "should it run this time?". Denied means it never runs. |
-| 7 | [Context And Memory](./stages/stage7.md) | Context vs memory | Storing information is not the same as giving it to the model. |
-| 8 | [Traces And Observability](./stages/stage8.md) | Explain a run | Output answers the task, memory retains outcomes, trace explains execution. |
+| 7 | [Traces And Observability](./stages/stage7.md) | Explain a run | Output answers the task, memory retains outcomes, trace explains execution. |
 
 ## Enterprise Agent Harness - Marketing
 
-After Stage 8, build one complete, enterprise-style harness: an agent that analyzes marketing data by writing and running code in a fenced workspace. Same Agent Core, registry, policy, approval and trace; the new capability is just more tools.
+After Stage 7, build one complete, enterprise-style harness: an agent that analyzes marketing data by writing and running code in a fenced workspace. Same Agent Core, registry, policy, approval and trace; the new capability is just more tools.
 
 | Build | Name | Teaches | Description |
 | --- | --- | --- | --- |

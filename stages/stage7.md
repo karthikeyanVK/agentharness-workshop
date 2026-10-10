@@ -1,4 +1,4 @@
-# Stage 8: Traces And Observability
+# Stage 7: Traces And Observability
 
 **Question:** How can we explain what the harness actually did?
 
@@ -8,18 +8,20 @@ Output answers the task, memory retains outcomes, trace explains execution.
 
 ## Setup
 
-- Create a new empty file `src/stage8.ts` in your editor.
+- Create a new empty file `src/stage7.ts` in your editor.
 - Build it in 5 steps.
 - Paste each block exactly as shown, in order.
 - Colors come from `src/color.ts`, which already exists.
 - `Trace` and `TraceEvent` already exist in `src/trace.ts`.
+- `AgentCore`, `ContextManager` and `Memory` already exist in `src/`.
+- The loop lives in `AgentCore`.
 
 ## Step 1: Imports
 
 Paste at the top of the file.
 
 ```ts
-// Stage 8: traces. Output answers the task, memory retains outcomes, trace explains execution.
+// Stage 7: traces. Output answers the task, memory retains outcomes, trace explains execution.
 import { AutoApproveForDemo } from "./approval.js";
 import { ContextManager } from "./context.js";
 import { AgentCore } from "./core.js";
@@ -61,7 +63,7 @@ function makeRegistry(): ToolRegistry {
 
 ## Step 3: Run the agent
 
-Same wiring as Stage 7, but the `Trace` is passed in so you can read it afterwards. Policy limit is `high`, so `wipe_production` is blocked.
+Same wiring as the earlier stages, but the `Trace` is passed in so you can read it afterwards. Policy limit is `high`, so `wipe_production` is blocked.
 
 ```ts
 async function runAgent(registry: ToolRegistry, trace: Trace, memory: Memory): Promise<string> {
@@ -160,7 +162,7 @@ await main();
 ## Run
 
 ```powershell
-npm run stage8
+npm run stage7
 
 
 ```
@@ -175,4 +177,4 @@ Query the trace to answer: did `wipe_production` ever execute?
 
 ---
 
-[Previous: Stage 7](./stage7.md) | [Back to README](../README.md)
+[Previous: Stage 6](./stage6.md) | [Back to README](../README.md)

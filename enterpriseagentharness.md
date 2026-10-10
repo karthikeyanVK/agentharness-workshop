@@ -4,7 +4,7 @@
 
 ## Learn
 
-The model does not guess numbers. It writes TypeScript, the harness runs it in a fenced workspace, the model reads the result back, then answers. Runtime execution is just more tools: `AgentCore` from Stages 1-8 does not change.
+The model does not guess numbers. It writes TypeScript, the harness runs it in a fenced workspace, the model reads the result back, then answers. Runtime execution is just more tools: `AgentCore` from Stages 1-7 does not change.
 
 ## Setup
 
@@ -91,7 +91,7 @@ function safePath(relativePath: string): string {
 
 ## Step 4: Tool helper
 
-Same helper as Stage 8. Keeps tool definitions short.
+Same helper as Stage 7. Keeps tool definitions short.
 
 ```ts
 const tool = (name: string, risk: RiskLevel, description: string, properties: Record<string, unknown>, execute: ToolDefinition["execute"]): ToolDefinition =>
