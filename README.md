@@ -66,8 +66,8 @@ npm run build
 | 2 | [Tool Feedback Loop](./stages/stage2.md) | Decide, act, observe | One `calculate` tool. Its result goes back to the model for the next decision. |
 | 3 | [Tool Registry](./stages/stage3.md) | Lookup by name | Registry replaces conditionals in the loop. Unknown and duplicate tools are rejected. |
 | 4 | [Execution Engine](./stages/stage4.md) | Controlled tool running | Engine owns how a tool runs. Failures become observations, never fake successes. |
-| 5 | [Policy Before Execution](./stages/stage5.md) | Risk vs limit | A model requesting a tool is not authorization. Policy checks before execution. |
-| 6 | [Human Approval Gate](./stages/stage6.md) | Policy vs approval | Policy asks "may this ever run?"; approval asks "should it run this time?". Denied means it never runs. |
+| 5 | [Policy and Human Feedback](./stages/stage5.md) | Risk vs limit | A model requesting a tool is not authorization. Policy checks before execution. |
+| 6 | [Scripted Approval for Automated Testing](./stages/stage6.md) | Scripted approvers | Same approval question as Stage 5, answered by scripted approvers so it runs unattended and repeatably. Denied means it never runs. |
 | 7 | [Traces And Observability](./stages/stage7.md) | Explain a run | Output answers the task, memory retains outcomes, trace explains execution. |
 
 ## Enterprise Agent Harness - Marketing

@@ -1,4 +1,4 @@
-# Stage 5: Policy Before Execution
+# Stage 5: Policy and Human Feedback
 
 **Question:** Should every proposed action be allowed?
 

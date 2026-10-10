@@ -1,10 +1,10 @@
-# Stage 6: Human Approval Gate
+# Stage 6: Scripted Approval for Automated Testing
 
-**Question:** When should an allowed action still require consent?
+**Question:** How do you test approval without a human at the keyboard?
 
 ## Learn
 
-Policy asks "may this ever run?". Approval asks "should it run this time?". Approval cannot override a policy denial.
+Policy asks "may this ever run?". Approval asks "should it run this time?". Approval cannot override a policy denial. Stage 5 asked a human in the terminal; here scripted approvers answer the same question, so approval can be tested automatically and repeatably.
 
 ## Setup
 
@@ -12,7 +12,7 @@ Policy asks "may this ever run?". Approval asks "should it run this time?". Appr
 - Build it in 5 steps.
 - Paste each block exactly as shown, in order.
 - Colors come from `src/color.ts`, which already exists.
-- `AutoApproveForDemo`, `TerminalApproval` and `ApprovalManager` already exist in `src/approval.ts`.
+- `AutoApproveForDemo` and `ApprovalManager` already exist in `src/approval.ts`.
 
 ## Step 1: Imports
 
@@ -21,7 +21,7 @@ Paste at the top of the file.
 ```ts
 // Stage 6: approval. Policy = "may this ever run?"  Approval = "should it run THIS time?"
 // Proposed action -> policy allows? -> approval required? -> approved? -> execute
-import { AutoApproveForDemo, TerminalApproval, type ApprovalManager } from "./approval.js";
+import { AutoApproveForDemo, type ApprovalManager } from "./approval.js";
 import { ExecutionEngine } from "./engine.js";
 import { PolicyEngine } from "./policy.js";
 import { ToolRegistry } from "./registry.js";
@@ -143,14 +143,7 @@ async function main(): Promise<void> {
   const model = createConfiguredModel();
   const del = "Call delete_all_records with table temp.";
 
-  if (process.argv[2] !== "scripted") {
-    // Default: human decides. Low risk skips approval, high asks you, critical is policy-blocked before you are asked.
-    await scenario(model, "Clean up the temp table after reading the weekly report", new TerminalApproval(),
-      "Call read_report for week 41, then delete_all_records on table temp, then wipe_production.");
-    process.exit(0);
-  }
-
-  // "scripted" now means scripted APPROVER; the model is still Azure
+  // Scripted approvers, so every run is repeatable. The model is still Azure.
   await scenario(model, "1. Allowed + approved (AutoApproveForDemo always says yes)", new AutoApproveForDemo(), del);
   await scenario(model, "2. Allowed but denied (AlwaysDeny)", new AlwaysDeny(), del);
   await scenario(model, "3. Policy-blocked: approver never asked", new ScriptedApproval([true]), "Call wipe_production.");
@@ -167,12 +160,10 @@ await main();
 ## Run
 
 ```powershell
-npm run stage6 scripted
+npm run stage6
 
 
 ```
-
-Example: `npm run stage6` (terminal prompt) or `npm run stage6 scripted` (scripted approvers)
 
 ## Watch for
 
