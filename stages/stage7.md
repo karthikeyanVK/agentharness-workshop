@@ -1,29 +1,25 @@
-# Stage 7: Context And Memory
+# Stage 8: Traces And Observability
 
-**Question:** What is the current task, and what has already happened?
+**Question:** How can we explain what the harness actually did?
 
 ## Learn
 
-Context = the task (`ContextManager`). Conversation = model input inside one run. Memory = retained outcomes. Storing information is not giving it to the model.
+Output answers the task, memory retains outcomes, trace explains execution.
 
 ## Setup
 
-- Create a new empty file `src/stage7.ts` in your editor.
+- Create a new empty file `src/stage8.ts` in your editor.
 - Build it in 5 steps.
 - Paste each block exactly as shown, in order.
 - Colors come from `src/color.ts`, which already exists.
-- `AgentCore`, `ContextManager` and `Memory` already exist in `src/`.
-- From here the loop lives in `AgentCore`.
+- `Trace` and `TraceEvent` already exist in `src/trace.ts`.
 
 ## Step 1: Imports
 
 Paste at the top of the file.
 
 ```ts
-// Stage 7: context vs conversation vs memory. Storing info != giving it to the model.
-//   Context      = what is the task (objective + task state)       -> ContextManager
-//   Conversation = model input inside ONE run                      -> local `messages` array in AgentCore.run()
-//   Memory       = retained outcomes                               -> Memory (in-process strings, lost on restart)
+// Stage 8: traces. Output answers the task, memory retains outcomes, trace explains execution.
 import { AutoApproveForDemo } from "./approval.js";
 import { ContextManager } from "./context.js";
 import { AgentCore } from "./core.js";
@@ -31,101 +27,113 @@ import { ExecutionEngine } from "./engine.js";
 import { Memory } from "./memory.js";
 import { PolicyEngine } from "./policy.js";
 import { ToolRegistry } from "./registry.js";
-import { Trace } from "./trace.js";
+import { Trace, type TraceEvent } from "./trace.js";
 import { createConfiguredModel } from "./model/index.js";
-import { cyan, green } from "./color.js";
-import type { ModelAdapter, ToolDefinition } from "./types.js";
+import { cyan, green, red, yellow } from "./color.js";
+import type { RiskLevel, ToolDefinition } from "./types.js";
 
 
 ```
 
-## Step 2: Registry
+## Step 2: Tool helper and registry
 
-Same tools as Stage 4: one that works, one that fails. Paste it unchanged.
+A small helper keeps tool definitions short. The registry has a failing tool, a high-risk tool and a critical tool.
+
+```ts
+const tool = (name: string, risk: RiskLevel, description: string, properties: Record<string, unknown>, execute: ToolDefinition["execute"]): ToolDefinition =>
+  ({ name, risk, description, permission: "demo", inputSchema: { type: "object", properties }, execute });
+
+
+```
 
 ```ts
 function makeRegistry(): ToolRegistry {
   const registry = new ToolRegistry();
-  registry.register({
-    name: "calculate", description: "Add two numbers", permission: "calculation", risk: "low", inputSchema: { type: "object", properties: { left: { type: "number" }, right: { type: "number" } }, required: ["left", "right"] },
-    async execute(input) { const { left, right } = input as { left: number; right: number }; return { value: left + right }; },
-  } as ToolDefinition);
-  registry.register({
-    name: "fetch_exchange_rate", description: "Look up a currency rate", permission: "network", risk: "low", inputSchema: { type: "object", properties: { currency: { type: "string" } } },
-    async execute() { throw new Error("rate service unreachable"); },
-  } as ToolDefinition);
+  registry.register(tool("calculate", "low", "Add two numbers", { left: { type: "number" }, right: { type: "number" } }, async (input) => { const { left, right } = input as { left: number; right: number }; return { value: left + right }; }));
+  registry.register(tool("fetch_exchange_rate", "low", "Look up a currency rate", { currency: { type: "string" } }, async () => { throw new Error("rate service unreachable"); }));
+  registry.register(tool("delete_temp_rows", "high", "Delete rows from a table", { table: { type: "string" } }, async () => ({ deleted: 3, simulated: true })));
+  registry.register(tool("wipe_production", "critical", "Wipe the production environment", {}, async () => ({ wiped: true })));
   return registry;
 }
 
 
 ```
 
-## Step 3: Spy model and core
+## Step 3: Run the agent
 
-`spyModel` wraps the real model and prints exactly what the LLM is given on its first decision.
+Same wiring as Stage 7, but the `Trace` is passed in so you can read it afterwards. Policy limit is `high`, so `wipe_production` is blocked.
 
 ```ts
-function spyModel(label: string, inner: ModelAdapter = createConfiguredModel()): ModelAdapter {
-  let first = true;
-  return {
-    id: inner.id,
-    async decide(messages, tools) {
-      if (first) {
-        first = false;
-        console.log(`  [${label}] model input on first decision:`);
-        for (const m of messages) console.log(`    ${m.role.padEnd(9)} ${m.content}`);
-      }
-      return inner.decide(messages, tools);
-    },
-  };
+async function runAgent(registry: ToolRegistry, trace: Trace, memory: Memory): Promise<string> {
+  const engine = new ExecutionEngine(registry, new PolicyEngine("high"), new AutoApproveForDemo(), trace);
+  return await new AgentCore(createConfiguredModel(), registry, engine, new ContextManager("Do these in order, one tool call at a time: calculate 21+21; fetch_exchange_rate for EUR; delete_temp_rows on table temp; wipe_production. Do not retry failures. Then summarize what happened."), memory, trace).run();
 }
 
 
 ```
 
-`makeCore` wires `AgentCore` with a context and a shared memory.
+## Step 4: Narrate and print the trace
+
+`narrate` turns a raw trace event into a sentence. `printTrace` prints every event in order.
 
 ```ts
-function makeCore(registry: ToolRegistry, memory: Memory, model: ModelAdapter, context: ContextManager): AgentCore {
-  const trace = new Trace();
-  return new AgentCore(model, registry, new ExecutionEngine(registry, new PolicyEngine(), new AutoApproveForDemo(), trace), context, memory, trace);
+function narrate(e: TraceEvent): string {
+  const d = e.data as Record<string, unknown>;
+  if (e.type === "decision") return d.kind === "tool_call" ? `model proposed ${d.toolName}(${JSON.stringify(d.input)})` : `model finished (${String(d.content).length} chars, see OUTPUT below)`;
+  if (e.status === "awaiting_approval") return `paused for approval of ${d.tool}`;
+  if (e.status === "running") return `engine started ${d.tool}`;
+  if (e.status === "succeeded") return `${d.tool} succeeded -> ${JSON.stringify(d.result)}`;
+  if (e.status === "failed") return `${d.tool} FAILED -> ${d.error}`;
+  return JSON.stringify(e);
 }
 
 
 ```
 
-## Step 4: Run 1, context is stored but not sent
+`paint` picks a color per event: red failed, green succeeded, yellow awaiting approval, cyan model decisions.
 
 ```ts
-async function demoRun1(registry: ToolRegistry, memory: Memory): Promise<void> {
-  const context1 = new ContextManager("Add 21+21 with calculate, then convert the total to EUR with fetch_exchange_rate. Report failures.", { user: "karthik", locale: "en-IN" });
-  context1.working.currency = "EUR";
-  context1.business.customerTier = "gold";
+const paint = (e: TraceEvent): ((s: string) => string) =>
+  e.status === "failed" ? red : e.status === "succeeded" ? green : e.status === "awaiting_approval" ? yellow : e.type === "decision" ? cyan : (s) => s;
 
-  console.log(cyan("== Run 1 =="));
-  console.log("  context.objective:  ", context1.objective);
-  console.log("  context.userContext:", JSON.stringify(context1.userContext));
-  console.log("  context.working:    ", JSON.stringify(context1.working));
-  console.log("  context.business:   ", JSON.stringify(context1.business));
-  console.log(green("  result:"), await makeCore(registry, memory, spyModel("run1"), context1).run());
-  console.log("  NOT in model input: userContext, working, business (core only sends objective)");
 
-  console.log("\n  memory.recent() after run 1:");
-  for (const entry of memory.recent()) console.log(`    - ${entry}`);
+```
+
+```ts
+function printTrace(trace: Trace): void {
+  console.log(cyan("== Trace, narrated in order =="));
+  trace.events.forEach((e, n) => console.log(`  ${String(n + 1).padStart(2)}. ${e.at.slice(11, 23)} ${paint(e)(`${e.type}/${e.status}`.padEnd(26))} ${paint(e)(narrate(e))}`));
 }
 
 
 ```
 
-## Step 5: Run 2, entry point and run
+## Step 5: Compare the surfaces, entry point and run
 
-Run 2 reuses the same `Memory` with a new task.
+Output, memory and trace side by side.
 
 ```ts
-async function demoRun2(registry: ToolRegistry, memory: Memory): Promise<void> {
-  console.log(cyan("\n== Run 2 (same memory object, new objective) =="));
-  console.log(green("  result:"), await makeCore(registry, memory, spyModel("run2"), new ContextManager("What was the sum from before?")).run());
-  console.log(`  memory holds ${memory.recent().length} entries, but none reached the model: core never reads memory into messages.`);
+function printSurfaces(output: string, memory: Memory, trace: Trace): void {
+  console.log(cyan("\n== Three surfaces, compared =="));
+  console.log(green("  OUTPUT (answers the task):"));
+  for (const line of output.split("\n")) console.log(`    ${line}`);
+  console.log(yellow("  MEMORY (retained outcomes):"));
+  for (const m of memory.recent()) console.log(`    - ${(m.startsWith("Tool failed") ? red : green)(m)}`);
+  console.log(cyan(`  TRACE  (explains execution): ${trace.events.length} events above`));
+}
+
+
+```
+
+Learner exercise: query the trace for `wipe_production`.
+
+```ts
+function printWipeExercise(trace: Trace): void {
+  const wipe = trace.events.filter((e) => JSON.stringify(e.data).includes("wipe_production"));
+  console.log(cyan("\n== Exercise: wipe_production in the trace =="));
+  for (const e of wipe) console.log(`  ${paint(e)(`${e.type}/${e.status}`)}`);
+  console.log(`  ${green("Can infer:")} model proposed it.`);
+  console.log(`  ${red("Cannot infer:")} why it did not run (no failed event; reason only in memory).`);
 }
 
 
@@ -136,13 +144,12 @@ Paste the entry point at the very bottom of the file.
 ```ts
 async function main(): Promise<void> {
   const registry = makeRegistry();
-  const memory = new Memory(); // shared across both runs
-  await demoRun1(registry, memory);
-  await demoRun2(registry, memory);
-
-  // Learner exercise (proposal only, not implemented): bounded context assembly, e.g.
-  //   messages = [system, user(objective), ...memory.recent().slice(-3).map(m => ({ role: "system", content: `Prior outcome: ${m}` }))]
-  //   bounded by count AND characters, failures labelled, never raw secrets.
+  const trace = new Trace();
+  const memory = new Memory();
+  const output = await runAgent(registry, trace, memory);
+  printTrace(trace);
+  printSurfaces(output, memory, trace);
+  printWipeExercise(trace);
 }
 
 await main();
@@ -153,19 +160,19 @@ await main();
 ## Run
 
 ```powershell
-npm run stage7
+npm run stage8
 
 
 ```
 
 ## Watch for
 
-`spyModel` prints exactly what the LLM saw. Run 2 sees memory from run 1 only because it is shared.
+Trace printed in order with sentences from `narrate`, then output vs memory vs trace side by side.
 
 ## Try it
 
-Use a fresh `Memory` for run 2 and predict the answer.
+Query the trace to answer: did `wipe_production` ever execute?
 
 ---
 
-[Previous: Stage 6](./stage6.md) | [Next: Stage 8](./stage8.md) | [Back to README](../README.md)
+[Previous: Stage 7](./stage7.md) | [Back to README](../README.md)
